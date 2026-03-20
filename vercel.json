@@ -16,8 +16,22 @@
       "dest": "/js/$1"
     },
     {
+      "src": "/chatgpt-style",
+      "dest": "/chatgpt-style.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/login.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
     }
   ]
 }

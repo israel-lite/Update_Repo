@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eazee - Google Clone</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            height: 60px;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .header-links {
+            margin-left: auto;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .header-links a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .logo {
+            font-size: 90px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #FFD700 0%, #1E90FF 50%, #4169E1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .search-container {
+            width: 100%;
+            max-width: 580px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            width: 100%;
+            height: 44px;
+            background: #3d3d3d;
+            border: 1px solid #555;
+            border-radius: 24px;
+            padding: 0 45px 0 20px;
+            font-size: 16px;
+            color: #fff;
+            outline: none;
+            box-sizing: border-box;
+        }
+        
+        .search-box:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 1px #ff6b35;
+        }
+        
+        .search-icons {
+            position: relative;
+        }
+        
+        .ai-button.active {
+            background: #ff8c42;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+        
+        .mic-icon, .ai-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .mic-icon {
+            width: 24px;
+            height: 24px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="%23ccc" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>') no-repeat center;
+            cursor: pointer;
+        }
+        
+        .ai-button {
+            right: 45px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .search-button {
+            background: #3d3d3d;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .search-button:hover {
+            background: #4d4d4d;
+            border-color: #666;
+        }
+        
+        .customize-chrome {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .ai-chat-container {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 350px;
+            height: 400px;
+            background: #2d2d2d;
+            border: 1px solid #555;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .ai-chat-container.active {
+            display: flex;
+        }
+        
+        .ai-chat-header {
+            background: #cc4210;
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ai-chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .ai-chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            color: #ccc;
+        }
+        
+        .ai-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .ai-message.user {
+            background: #ff6b35;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .ai-message.bot {
+            background: #3d3d3d;
+            color: #ccc;
+        }
+        
+        .ai-chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #555;
+        }
+        
+        .ai-input {
+            flex: 1;
+            background: #3d3d3d;
+            border: 1px solid #555;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .ai-send {
+            background: #ff6b35;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .voice-recording {
+            background: #ff4444 !important;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-links">
+            <a href="#">Gmail</a>
+            <a href="#">Images</a>
+            <a href="#">Apps</a>
+            <a href="#">Sign in</a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="logo">Eazee</div>
+        
+        <div class="search-container">
+            <div class="search-icons">
+                <input type="text" class="search-box" placeholder="Search Google or type a URL">
+                <button class="ai-button">AI Mode</button>
+                <div class="mic-icon"></div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="search-button">Google Search</button>
+            <button class="search-button">I'm Feeling Lucky</button>
+        </div>
+    </div>
+    
+    <button class="customize-chrome">Customize Chrome</button>
+    
+    <div class="ai-chat-container" id="aiChat">
+        <div class="ai-chat-header">
+            <span>AI Assistant</span>
+            <button class="ai-chat-close" onclick="toggleAIChat()">×</button>
+        </div>
+        <div class="ai-chat-messages" id="chatMessages">
+            <div class="ai-message bot">Hello! I'm your AI assistant. How can I help you today?</div>
+        </div>
+        <div class="ai-chat-input">
+            <input type="text" class="ai-input" id="aiInput" placeholder="Ask me anything..." onkeypress="handleKeyPress(event)">
+            <button class="ai-send" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    
+    <script>
+        let aiModeActive = false;
+        let isRecording = false;
+        let recognition = null;
+        
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('aiInput').value = transcript;
+                stopRecording();
+                sendMessage();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+            };
+            
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+        
+        function toggleAIMode() {
+            // Navigate to ChatGPT-style AI page
+            window.location.href = 'chatgpt-style.html';
+        }
+        
+        function toggleAIChat() {
+            const aiChat = document.getElementById('aiChat');
+            const aiButton = document.querySelector('.ai-button');
+            
+            if (aiChat.classList.contains('active')) {
+                aiChat.classList.remove('active');
+                aiButton.classList.remove('active');
+                aiModeActive = false;
+            } else {
+                aiChat.classList.add('active');
+                aiButton.classList.add('active');
+                aiModeActive = true;
+                document.getElementById('aiInput').focus();
+            }
+        }
+        
+        function toggleVoiceRecording() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser. Please use Chrome.');
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            isRecording = true;
+            const micIcon = document.querySelector('.mic-icon');
+            micIcon.classList.add('voice-recording');
+            recognition.start();
+        }
+        
+        function stopRecording() {
+            isRecording = false;
+            const micIcon = document.querySelector('.mic-icon');
+            micIcon.classList.remove('voice-recording');
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'ai-message user';
+            userMessage.textContent = message;
+            chatMessages.appendChild(userMessage);
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'ai-message bot';
+            typingIndicator.textContent = 'Typing...';
+            chatMessages.appendChild(typingIndicator);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                // Call local backend API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                
+                const data = await response.json();
+                const botResponse = data.response;
+                
+                // Remove typing indicator
+                chatMessages.removeChild(typingIndicator);
+                
+                // Add bot response
+                const botMessage = document.createElement('div');
+                botMessage.className = 'ai-message bot';
+                botMessage.textContent = botResponse;
+                chatMessages.appendChild(botMessage);
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                
+                // Remove typing indicator
+                chatMessages.removeChild(typingIndicator);
+                
+                // Fallback to local responses
+                const botMessage = document.createElement('div');
+                botMessage.className = 'ai-message bot';
+                botMessage.textContent = generateAIResponse(message);
+                chatMessages.appendChild(botMessage);
+            }
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function generateAIResponse(userMessage) {
+            const responses = {
+                'hello': 'Hello! How can I assist you today?',
+                'hi': 'Hi there! What can I help you with?',
+                'how are you': 'I\'m functioning perfectly! Ready to help with any questions you have.',
+                'what is your name': 'I\'m your AI assistant, here to help with information and tasks.',
+                'help': 'I can help you with various tasks like answering questions, providing information, and assisting with searches. Just ask me anything!',
+                'time': new Date().toLocaleTimeString(),
+                'date': new Date().toLocaleDateString(),
+                'weather': 'I\'d need your location to provide weather information. Could you tell me which city you\'re in?',
+                'google': 'I can help you search Google! What would you like to search for?',
+                'search': 'I can help you search. What are you looking for?'
+            };
+            
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Check for exact matches
+            for (let key in responses) {
+                if (lowerMessage.includes(key)) {
+                    return responses[key];
+                }
+            }
+            
+            // Check for common questions
+            if (lowerMessage.includes('who') || lowerMessage.includes('what') || lowerMessage.includes('when') || lowerMessage.includes('where') || lowerMessage.includes('why') || lowerMessage.includes('how')) {
+                return 'That\'s an interesting question! Based on my knowledge, I\'d be happy to help you explore that topic further. Could you provide more specific details?';
+            }
+            
+            // Default responses
+            const defaultResponses = [
+                'That\'s a great question! Let me think about that for you.',
+                'I understand you\'re asking about: ' + userMessage + '. Here\'s what I can tell you...',
+                'Interesting! Based on what you\'ve said, I\'d suggest exploring that topic more deeply.',
+                'I can help you with that! Let me provide some useful information.',
+                'Thanks for asking! Here\'s my perspective on that topic.'
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+        
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.ai-button').addEventListener('click', toggleAIMode);
+            document.querySelector('.mic-icon').addEventListener('click', toggleVoiceRecording);
+        });
+    </script>
+</body>
+</html>
