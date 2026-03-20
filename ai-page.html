@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - Google Clone</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            height: 60px;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+        
+        .back-button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .ai-title {
+            color: #ff6b35;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 20px auto;
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            background: #2d2d2d;
+            border: 1px solid #555;
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            line-height: 1.4;
+        }
+        
+        .message.user {
+            background: #ff6b35;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message.bot {
+            background: #3d3d3d;
+            color: #ccc;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: #3d3d3d;
+            border: 1px solid #555;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 24px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .chat-input:focus {
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        }
+        
+        .send-button, .voice-button {
+            background: #ff6b35;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        
+        .send-button:hover, .voice-button:hover {
+            background: #ff8c42;
+        }
+        
+        .voice-button.recording {
+            background: #ff4444;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
+        }
+        
+        .typing-indicator {
+            display: none;
+            background: #3d3d3d;
+            color: #ccc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            margin-bottom: 15px;
+        }
+        
+        .typing-indicator.active {
+            display: block;
+        }
+        
+        .typing-dots {
+            display: inline-block;
+        }
+        
+        .typing-dots::after {
+            content: '...';
+            animation: typing 1.5s infinite;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0; }
+            30% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="clone.html" class="back-button">← Back to Google</a>
+        <div class="ai-title">F-C 13 Tech Dominator</div>
+        <div></div>
+    </div>
+    
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">🚀 Welcome! I'm F-C 13 Tech Dominator, an advanced AI powered by PyTorch neural networks. I possess deep knowledge of programming, machine learning, web technologies, and cutting-edge tech concepts. My neural architecture enables me to provide intelligent, context-aware responses. What technological challenge can I help you conquer today?</div>
+        </div>
+        
+        <div class="typing-indicator" id="typingIndicator">
+            <span class="typing-dots">Thinking</span>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything..." onkeypress="handleKeyPress(event)">
+            <button class="voice-button" id="voiceButton" onclick="toggleVoiceRecording()">🎤</button>
+            <button class="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    
+    <script>
+        let isRecording = false;
+        let recognition = null;
+        
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('chatInput').value = transcript;
+                stopRecording();
+                sendMessage();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopRecording();
+            };
+            
+            recognition.onend = function() {
+                stopRecording();
+            };
+        }
+        
+        function toggleVoiceRecording() {
+            if (!recognition) {
+                alert('Speech recognition is not supported in your browser. Please use Chrome.');
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            isRecording = true;
+            const voiceButton = document.getElementById('voiceButton');
+            voiceButton.classList.add('recording');
+            voiceButton.textContent = '🔴';
+            recognition.start();
+        }
+        
+        function stopRecording() {
+            isRecording = false;
+            const voiceButton = document.getElementById('voiceButton');
+            voiceButton.classList.remove('recording');
+            voiceButton.textContent = '🎤';
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message === '') return;
+            
+            const chatMessages = document.getElementById('chatMessages');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.textContent = message;
+            chatMessages.appendChild(userMessage);
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            typingIndicator.classList.add('active');
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                // Call backend API
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                
+                const data = await response.json();
+                const botResponse = data.response;
+                
+                // Hide typing indicator
+                typingIndicator.classList.remove('active');
+                
+                // Add bot response
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot';
+                botMessage.textContent = botResponse;
+                chatMessages.appendChild(botMessage);
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                
+                // Hide typing indicator
+                typingIndicator.classList.remove('active');
+                
+                // Fallback to local responses
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot';
+                botMessage.textContent = generateAIResponse(message);
+                chatMessages.appendChild(botMessage);
+            }
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function generateAIResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase();
+            
+            // Programming and technical questions
+            if (lowerMessage.includes('html')) {
+                return 'HTML stands for HyperText Markup Language. It\'s the standard markup language used to create web pages. HTML describes the structure of a web page semantically and originally included cues for the appearance of the document. It consists of elements represented by tags, which define the content and structure of web pages.';
+            }
+            
+            if (lowerMessage.includes('javascript') || lowerMessage.includes('js')) {
+                return 'JavaScript is a high-level, interpreted programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS. It enables interactive web pages and is an essential part of web applications. JavaScript can be used for client-side development, server-side development (with Node.js), mobile apps, and more.';
+            }
+            
+            if (lowerMessage.includes('css')) {
+                return 'CSS stands for Cascading Style Sheets. It\'s a stylesheet language used to describe the presentation of a document written in HTML or XML. CSS describes how elements should be rendered on screen, on paper, in speech, or on other media. It controls layout, colors, fonts, and spacing of web elements.';
+            }
+            
+            if (lowerMessage.includes('python')) {
+                return 'Python is a high-level, interpreted programming language known for its clear syntax and readability. It\'s widely used in web development, data science, artificial intelligence, scientific computing, and automation. Python emphasizes code readability with its notable use of significant whitespace.';
+            }
+            
+            if (lowerMessage.includes('react')) {
+                return 'React is a JavaScript library for building user interfaces, particularly web applications with rich, interactive UIs. It was developed by Facebook and is maintained by Facebook and a community of individual developers and companies. React uses a virtual DOM to optimize rendering performance and allows developers to create reusable UI components.';
+            }
+            
+            // General questions
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                return 'Hello! I\'m here to help you with programming questions, explain technical concepts, or assist with any other topics you\'re curious about. What would you like to learn about today?';
+            }
+            
+            if (lowerMessage.includes('how are you')) {
+                return 'I\'m functioning perfectly and ready to help! I have access to a wide range of knowledge about programming, technology, and general topics. What can I assist you with?';
+            }
+            
+            if (lowerMessage.includes('what is your name')) {
+                return 'I\'m your AI assistant, designed to help with programming questions, technical explanations, and general knowledge. I\'m here to provide clear, accurate information to help you learn and solve problems.';
+            }
+            
+            if (lowerMessage.includes('help')) {
+                return 'I can help you with: \n• Programming languages (HTML, CSS, JavaScript, Python, etc.)\n• Web development concepts\n• Technical explanations\n• Problem-solving\n• General knowledge questions\n• And much more! Just ask me anything you\'re curious about.';
+            }
+            
+            if (lowerMessage.includes('time')) {
+                return 'The current time is: ' + new Date().toLocaleTimeString();
+            }
+            
+            if (lowerMessage.includes('date')) {
+                return 'Today\'s date is: ' + new Date().toLocaleDateString();
+            }
+            
+            // Check for question words
+            if (lowerMessage.includes('who') || lowerMessage.includes('what') || lowerMessage.includes('when') || lowerMessage.includes('where') || lowerMessage.includes('why') || lowerMessage.includes('how')) {
+                if (lowerMessage.includes('programming') || lowerMessage.includes('code') || lowerMessage.includes('develop')) {
+                    return 'That\'s a great programming question! I\'d be happy to help explain that concept. Could you provide a bit more context about what specific aspect you\'d like me to cover? For example, are you asking about implementation, best practices, or theoretical concepts?';
+                }
+                return 'That\'s an interesting question! Let me provide you with a comprehensive answer. To give you the most accurate and helpful response, could you tell me a bit more about what specific aspect you\'d like me to focus on?';
+            }
+            
+            // Default intelligent responses
+            const defaultResponses = [
+                'That\'s a thoughtful question! Based on what you\'ve asked, I\'d be happy to provide more detailed information. Could you help me understand what specific aspect you\'d most like to explore?',
+                'I understand you\'re curious about ' + userMessage + '. This is an interesting topic! To give you the most helpful response, could you let me know what particular aspect interests you most?',
+                'Great question! I can definitely help you with that. To provide the most useful information, could you clarify what specific area you\'d like me to focus on?',
+                'I appreciate you asking about that! This is a fascinating topic with many aspects. What particular dimension of this would you like me to explain in more detail?',
+                'That\'s an excellent question! I\'d be happy to share what I know about this topic. Is there a specific angle or application you\'re most interested in learning about?'
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+        
+        // Focus input on load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('chatInput').focus();
+        });
+    </script>
+</body>
+</html>

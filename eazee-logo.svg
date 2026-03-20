@@ -1,0 +1,28 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="eazeeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1E90FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4169E1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="url(#eazeeGradient)" opacity="0.1"/>
+  <circle cx="16" cy="16" r="14" fill="none" stroke="url(#eazeeGradient)" stroke-width="2"/>
+  
+  <!-- Windsurfing board -->
+  <path d="M8 20 Q16 18 24 20" stroke="url(#eazeeGradient)" stroke-width="2" fill="none"/>
+  
+  <!-- Windsurfing sail -->
+  <path d="M16 8 L12 18 L20 18 Z" fill="url(#eazeeGradient)" opacity="0.8"/>
+  
+  <!-- Person -->
+  <circle cx="16" cy="12" r="2" fill="#FFD700"/>
+  <path d="M16 14 L16 18 M14 16 L18 16" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+  
+  <!-- Hexagonal design -->
+  <path d="M4 4 L8 2 L8 6 Z" fill="url(#eazeeGradient)" opacity="0.6"/>
+  <path d="M2 8 L4 6 L4 10 Z" fill="#1E90FF" opacity="0.4"/>
+  <path d="M6 2 L8 4 L6 6 Z" fill="#4169E1" opacity="0.5"/>
+</svg>
