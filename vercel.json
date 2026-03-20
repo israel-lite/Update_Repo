@@ -2,34 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "simple_ai_server.py",
+      "src": "api/index.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "chatgpt-style.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "clone.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "login.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "eazee-logo.svg",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "js/*.js",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/simple_ai_server.py"
+      "src": "/api",
+      "dest": "/api/index.py"
     },
     {
       "src": "/js/(.*)",
@@ -41,7 +21,7 @@
     }
   ],
   "functions": {
-    "simple_ai_server.py": {
+    "api/index.py": {
       "runtime": "python3.9"
     }
   }
